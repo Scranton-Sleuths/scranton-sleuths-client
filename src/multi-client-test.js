@@ -8,7 +8,7 @@ const MultiClientTest = {
     test_n_clients: function(n) {
         for (var i = 0; i < n; i++) {
             var client_i = new Colyseus.Client(SERVER_URL);
-            client_i.joinOrCreate("my_room").then(room => {
+            client_i.joinOrCreate("lobby").then(room => {
                 console.log(room.sessionId, "joined", room.name);
             }).catch(e => {
                 console.log("JOIN ERROR", e);
