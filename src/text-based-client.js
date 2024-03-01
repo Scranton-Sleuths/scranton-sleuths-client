@@ -7,27 +7,46 @@ class TextBasedClient {
     constructor(server) {
         this.name = null;
         this.client = new Colyseus.Client(server);
+
+        // Join the lobby when you create a new client
+        this.client.joinOrCreate("lobby").then(room => {
+            console.log(room.sessionId, "joined", room.name);
+            this.room = room;
+        }).catch(e => {
+            console.log("JOIN ERROR", e);
+        });
+
         this.answer = null;
         this.ready = true;
         this.state = "input";
     }
 
     playGame() {
-        while (true) {
-            switch(this.state) {
-                case "input":
-                    console.log(this.waitForInput("helpme"));
-                default:
-                    continue;
-            }
-            // if (this.ready) {
-            //     this.ready = false;
+        // while (true) {
+        //     switch(this.state) {
+        //         case "input":
+        //             console.log(this.waitForInput("helpme"));
+        //         default:
+        //             continue;
+        //     }
+        //     // if (this.ready) {
+        //     //     this.ready = false;
                 
-            //     this.waitForInput(">>What should I do?  ", this.processInput);
-            // //console.log(answer);
-            // //this.processInput(answer);
-            // }
+        //     //     this.waitForInput(">>What should I do?  ", this.processInput);
+        //     // //console.log(answer);
+        //     // //this.processInput(answer);
+        //     // }
+        // }
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+        const game = async() => {
+            for await (const line of rl) {
+                this.room.send("test", line); // This line requires that server handle messages of this type
+            }
         }
+        game();
     }
 
     processInput(input) {
