@@ -7,150 +7,101 @@ class TextBasedClient {
     constructor(server) {
         this.name = null;
         this.client = new Colyseus.Client(server);
-
-        // Join the lobby when you create a new client
-        this.client.joinOrCreate("lobby").then(room => {
-            console.log(room.sessionId, "joined", room.name);
-            this.room = room;
-        }).catch(e => {
-            console.log("JOIN ERROR", e);
-        });
-
+        this.room = null;
         this.answer = null;
         this.ready = true;
         this.state = "input";
     }
 
     playGame() {
-        // while (true) {
-        //     switch(this.state) {
-        //         case "input":
-        //             console.log(this.waitForInput("helpme"));
-        //         default:
-        //             continue;
-        //     }
-        //     // if (this.ready) {
-        //     //     this.ready = false;
-                
-        //     //     this.waitForInput(">>What should I do?  ", this.processInput);
-        //     // //console.log(answer);
-        //     // //this.processInput(answer);
-        //     // }
-        // }
+
         const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout
         });
         const game = async() => {
+            if (this.state=="input")
+                console.log("What do you wish to do? Enter 'join' to join the lobby.");
+
             for await (const line of rl) {
-                this.room.send("test", line); // This line requires that server handle messages of this type
+                this.processInput(line);
+
+                if (this.state=="quit") 
+                    break;
+                if (this.state=="input")
+                    console.log("What do you wish to do?");
             }
         }
         game();
     }
 
     processInput(input) {
-        console.log("Processing " + input);
-        switch(input) {
-            case "join":
-                this.client.joinOrCreate("my_room").then(room => {
-                    console.log(room.sessionId, "joined", room.name);
-                }).catch(e => {
-                    console.log("JOIN ERROR", e);
-                });
-                //await new Promise(r => setTimeout(r, 2000));
+
+        switch(this.state) {
+            case "input":
+                switch(input) {
+                    case "join":
+                        this.state="join";
+                        this.client.joinOrCreate("lobby").then(room => {
+                            console.log(room.sessionId, "joined", room.name);
+                            this.room = room;
+                        }).catch(e => {
+                            console.log("JOIN ERROR", e);
+                        });
+                        //await new Promise(r => setTimeout(r, 2000));
+                        this.state="input";
+                        break;
+                    case "message":
+                        if (this.room == null) {
+                            console.log("Uh oh! You aren't connected to the server. Choose 'join' to connect.");
+                            this.state="input";
+                        }
+                        else { 
+                            console.log("What message do you wish to send?");
+                            this.state="message";
+                        }
+                        break;
+                    case "menu":
+                    case "help":
+                        this.printMenu();
+                        this.state="input";
+                        break;
+                    case "quit":
+                        console.log("Goodbye.");
+                        this.state="quit";
+                        return;
+                    case "start":
+                        this.room.send("start"); // This line requires that server handle messages of this type
+                        // May want to change this to state 'awaiting server' or some such to indicate we should wait for server feedback
+                        this.state="input";
+                        break;
+                    default:
+                        console.log("I'm not sure what you mean. Type 'menu' to see your options.");
+                        this.state="input";
+                        break;
+                }           
                 break;
-            case "menu":
-            case "help":
-                console.log("join: join the server");
+            case "message":
+                this.room.send("test", input); // This line requires that server handle messages of this type
+                this.state="input";
                 break;
-            case "quit":
-                console.log("Goodbye.");
-                return;
             default:
-                console.log("I'm not sure what you mean. Type 'menu' to see your options.");
+                console.log("Invalid state. Going back to input.", this.state);
+                this.state="input";
                 break;
+
         }
-        this.ready = true;
-        //this.waitForInput(">>What should I do?  ", this.processInput);
     }
 
-    waitForInput(question) {
-        this.state="inputting";
-        const rl = readline.createInterface({ input, output });
-        var ans = "";
-       // rl.setPrompt(question);
-        //rl.prompt();
-        rl.question(question, (answer) => {
-            console.log(`received by the user: ${answer}`);
-            ans = answer;
-            rl.close();
-        });
-        rl.on('close', () => {
-            return;
-        });
-        return ans;
-    }
-
-    waitForInput(question, callback) {
-        const rl = readline.createInterface({ input, output });
-        var ans = "";
-        rl.setPrompt(question);
-        rl.prompt();
-        rl.on('line', (answer) => {
-            console.log(`received by the user: ${answer}`);
-            callback(answer);
-            ans = answer;
-            rl.close();
-        });
-        rl.on('close', () => {
-            return callback(ans);
-        });
+    printMenu() {
+        console.log("join: join the server");
+        console.log("help: print the help menu");
+        console.log("quit: quit the game");
+        console.log("message: send message to the server");
+        console.log("start: start the game of Clue");
     }
 
 }
-
-// const TextBasedClient = {
-//     client: null,
-
-//     waitForInput: function(question) {
-//         console.log(question);
-//         var ans = readline.readline();
-//         return ans;
-//     },
-    
-//     processInput: async function(input) {
-//         console.log("Processing " + input);
-//         switch(input) {
-//             case "join":
-//                 client.joinOrCreate("my_room").then(room => {
-//                     console.log(room.sessionId, "joined", room.name);
-//                 }).catch(e => {
-//                     console.log("JOIN ERROR", e);
-//                 });
-//                 await new Promise(r => setTimeout(r, 2000));
-//                 break;
-//             case "menu":
-//             case "help":
-//                 console.log("join: join the server");
-//                 break;
-//             case "quit":
-//                 console.log("Goodbye.");
-//                 return;
-//             default:
-//                 console.log("I'm not sure what you mean. Type 'menu' to see your options.");
-//                 break;
-//         }
-//         this.processInput(this.waitForInput(">>What should I do?  "));
-//     }
-    
-//     // getUserId: function() {
-//     //     if (!this.has("name")) {
-//     //         this.name = this.waitForInput("What is your name? ");
-//     //     }
-//     //     return this.name;
-//     // }
-// }
 
 module.exports = TextBasedClient;
 
