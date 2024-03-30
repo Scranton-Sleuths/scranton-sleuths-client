@@ -45,6 +45,9 @@ class TextBasedClient {
                         this.client.joinOrCreate("lobby").then(room => {
                             console.log(room.sessionId, "joined", room.name);
                             this.room = room;
+                            this.room.onMessage("test", (message) => {
+                                console.log(`Test message received from server: ${message}`);
+                            });
                         }).catch(e => {
                             console.log("JOIN ERROR", e);
                         });
