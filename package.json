@@ -5,11 +5,16 @@
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js"
+    "start": "parcel serve index.html"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "colyseus.js": "^0.15.18"
+    "colyseus.js": "^0.15.18",
+    "parcel": "^2.12.0",
+    "phaser": "^3.80.1"
+  },
+  "devDependencies": {
+    "process": "^0.11.10"
   }
 }
