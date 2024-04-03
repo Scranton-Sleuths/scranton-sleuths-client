@@ -18,12 +18,7 @@ export class Game extends Phaser.Scene {
 
     preload() {
         // Load in images
-        this.load.image("cat", "./imgs/cat.png") // why no work
-
-        // https://stackoverflow.com/questions/58124236/add-sprite-in-function-in-phaser-3
-        // Maybe we can use sprites?
-        // We could set the background image of the scene to the board, and then add sprites for each room and character
-        // That way, we can easily set onclick (pointerdown) methods for each room/character
+        this.load.image('cat', require('../assets/cat.png'));
     }
 
     update() {
@@ -39,17 +34,20 @@ export class Game extends Phaser.Scene {
         console.log('Starting');
         await this.connect();
         // Receive updates from server
+        // onAdd may not work as we intend. Might be better if we loop through clientPlayers instead (once they've all been added). Can try what we have now first though
         this.room.state.clientPlayers.onAdd((player, sessionId) => {
-            const entity = this.physics.add.image(player.x, player.y, 'cat'); // The image loaded will have to be based on whatever the server says for the player
+            // let playerImage = blah
+            // Will also need to set the starting x/y cooridates
+            const entity = this.physics.add.image(300, 300, 'cat'); // The image loaded will have to be based on whatever the server says for the player
             this.playerEntities[sessionId] = entity;
 
             // listening for server updates
             player.onChange(() => {
                 // This is where we will update player location
-                /**
-                 * entity.x = player.x
-                 * That is just an example. We will have to figure out how we store positions
-                 */
+                // TODO: write a function that moves the player's sprite to the room (i.e., setting the x/y of the player to that of the room)
+                // Then it will be:
+                // entity.x = roomX;
+                // entity.y = roomY;
                 
             });
         });

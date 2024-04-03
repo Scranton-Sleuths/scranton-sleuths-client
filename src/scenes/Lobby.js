@@ -20,6 +20,7 @@ export class Lobby extends Phaser.Scene {
 
     preload() {
         this.load.html("form");
+        this.load.image('cat', require('../assets/cat.png'));
     }
 
     update() {
@@ -43,6 +44,36 @@ export class Lobby extends Phaser.Scene {
             this.game.scene.switch("lobby", "game");
             // The code to switch to the server game room will be in the Game.js file/scene
         });
+
+        /**
+         * This is an example of how the game is going to work.
+         * There will be a background image of the board, but the rooms/hallways will be images overlayed on top so we can register when people click on them
+         * This is MUCH EASIER than trying to process what room was clicked based on the mouse x/y coordiates
+         * The locations will be pre-loaded in their correct locations
+         * When a player clicks on a room, a message is sent to the server saying what room was clicked
+         * The server receives that, along with who sent it
+         * The server can then process if it is a valid move, etc
+         * The client doesn't do ANY game logic. It only visualizes the game state
+         */
+
+        // We can add a bunch of cats at once
+        let cats = [];
+        for (let index = 0; index < 5; index++) {
+            cats[index] = this.add.image(100 + (index*100), 300, 'cat');
+            cats[index].setScale(.2);
+            cats[index].setInteractive();
+            cats[index].on('pointerdown', () => {
+                console.log('Meow', index);
+            });
+        }
+        // Or one at a time
+        const catImg = this.add.image(100, 400, 'cat');
+        catImg.setScale(.2)
+        catImg.setInteractive();
+        catImg.on('pointerdown', () => {
+            console.log('Meow')
+        });
+
 
         this.room.state.clientPlayers.onAdd((player, sessionId) => {
             this.test.text = `Players in lobby: ${this.room.state.numPlayers}`;
