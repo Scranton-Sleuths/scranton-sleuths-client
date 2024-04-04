@@ -48,6 +48,10 @@ class TextBasedClient {
                             this.room.onMessage("test", (message) => {
                                 console.log(`Test message received from server: ${message}`);
                             });
+                            this.room.onMessage("switchRoom", (message) => {
+                                console.log(`Starting the Game!`);
+                                this.client.joinOrCreate(message.room, {num_players: message.num_players});
+                            });
                         }).catch(e => {
                             console.log("JOIN ERROR", e);
                         });
