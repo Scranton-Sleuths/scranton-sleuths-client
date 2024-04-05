@@ -26,8 +26,23 @@ export class Game extends Phaser.Scene {
     }
 
     async connect() {
-        // TODO: Join game room
-        this.room = null;
+        // add connection status text
+        const connectionStatusText = this.add
+            .text(0, 0, "Trying to connect with the server...")
+            .setStyle({ color: "#ff0000" })
+            .setPadding(4)
+
+        const client = new Client(SERVER_URL);
+
+        try {
+            this.room = await client.joinOrCreate("game");
+            // connection successful!
+            connectionStatusText.destroy();
+
+        } catch (e) {
+            // couldn't connect
+            console.log('Error connecting to game.');
+        }
     }
 
     async create() {
@@ -35,6 +50,15 @@ export class Game extends Phaser.Scene {
         await this.connect();
         // Receive updates from server
         // onAdd may not work as we intend. Might be better if we loop through clientPlayers instead (once they've all been added). Can try what we have now first though
+
+        const startButton = this.add.text(100, 100, 'Start Game', { fill: '#0f0' });
+        startButton.setInteractive();
+        startButton.on('pointerdown', () => {
+            console.log('Starting game with ' + this.room.state.clientPlayers.size + ' players!');
+            this.room.send("startGame", 2);
+            startButton.removeFromDisplayList();
+        });
+
         this.room.state.clientPlayers.onAdd((player, sessionId) => {
             // let playerImage = blah
             // Will also need to set the starting x/y cooridates
