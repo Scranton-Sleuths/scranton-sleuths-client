@@ -55,7 +55,7 @@ export class Game extends Phaser.Scene {
         startButton.setInteractive();
         startButton.on('pointerdown', () => {
             console.log('Starting game with ' + this.room.state.clientPlayers.size + ' players!');
-            this.room.send("startGame", 2);
+            this.room.send("startGame", this.room.state.clientPlayers.size);
             startButton.removeFromDisplayList();
         });
 
