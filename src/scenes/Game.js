@@ -7,6 +7,7 @@ const SERVER_URL = 'ws://localhost:3000';
 export class Game extends Phaser.Scene {
 
     playerEntities = {};
+    locations = [];
     
     constructor() {
         super({key: 'game'});
@@ -23,6 +24,21 @@ export class Game extends Phaser.Scene {
 
     update() {
         
+    }
+
+    drawBoard() {
+        console.log('drawing board!!')
+        console.log(this.room.state.board.size);
+        this.room.state.board.forEach((value, key) => {
+            // For now, just add text instead of image
+            let temp = this.add.text(value.x, value.y, value.name);
+            temp.setInteractive();
+            temp.on('pointerdown', () => {
+                console.log("Location:", value.name, "Type:", value.type);
+                this.room.send("move", value.name);
+            });
+            this.locations.push(temp);
+        });
     }
 
     async connect() {
@@ -52,18 +68,28 @@ export class Game extends Phaser.Scene {
         // onAdd may not work as we intend. Might be better if we loop through clientPlayers instead (once they've all been added). Can try what we have now first though
 
         const startButton = this.add.text(100, 100, 'Start Game', { fill: '#0f0' });
+        
+        this.room.onMessage("drawboard", (client, message) => {
+            this.drawBoard();
+            startButton.removeFromDisplayList();
+          });
+        
+        
         startButton.setInteractive();
         startButton.on('pointerdown', () => {
             console.log('Starting game with ' + this.room.state.clientPlayers.size + ' players!');
             this.room.send("startGame", this.room.state.clientPlayers.size);
+            this.drawBoard(); // This method will create all of the images for the board
             startButton.removeFromDisplayList();
         });
 
         this.room.state.clientPlayers.onAdd((player, sessionId) => {
             // let playerImage = blah
             // Will also need to set the starting x/y cooridates
-            const entity = this.physics.add.image(300, 300, 'cat'); // The image loaded will have to be based on whatever the server says for the player
-            this.playerEntities[sessionId] = entity;
+
+            // When the player joins, they will be put into the correct position. This will happen before the board is loaded, thats okay
+            //const entity = this.physics.add.image(300, 300, 'cat'); // The image loaded and x/y will have to be based on whatever the server says for the player
+            //this.playerEntities[sessionId] = entity;
 
             // listening for server updates
             player.onChange(() => {
@@ -72,7 +98,7 @@ export class Game extends Phaser.Scene {
                 // Then it will be:
                 // entity.x = roomX;
                 // entity.y = roomY;
-                
+                console.log(player.name, "player updated! New location:", player.currentLocation); // Example of it working
             });
         });
 
