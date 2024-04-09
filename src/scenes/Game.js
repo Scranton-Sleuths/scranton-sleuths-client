@@ -89,7 +89,10 @@ export class Game extends Phaser.Scene {
 
             // When the player joins, they will be put into the correct position. This will happen before the board is loaded, thats okay
             //const entity = this.physics.add.image(300, 300, 'cat'); // The image loaded and x/y will have to be based on whatever the server says for the player
-            //this.playerEntities[sessionId] = entity;
+
+            // For now, just add text for the players
+            const entity = this.add.text(player.startX, player.startY, player.name, { fill: '#0f0' });
+            this.playerEntities[sessionId] = entity;
 
             // listening for server updates
             player.onChange(() => {
@@ -99,6 +102,11 @@ export class Game extends Phaser.Scene {
                 // entity.x = roomX;
                 // entity.y = roomY;
                 console.log(player.name, "player updated! New location:", player.currentLocation); // Example of it working
+                let curRoom = this.room.state.board.get(player.currentLocation);
+                let newX = curRoom.x;
+                let newY = curRoom.y - 10;
+                entity.x = newX;
+                entity.y = newY;
             });
         });
 
