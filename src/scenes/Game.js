@@ -31,13 +31,20 @@ export class Game extends Phaser.Scene {
         console.log(this.room.state.board.size);
         this.room.state.board.forEach((value, key) => {
             // For now, just add text instead of image
-            let temp = this.add.text(value.x, value.y, value.name);
+            let temp;
+            if (value.type == "room") {
+                temp = this.add.text(value.x, value.y, value.name);
+            }
+            else {
+                temp = this.add.text(value.x, value.y, "| |");
+            }
             temp.setInteractive();
             temp.on('pointerdown', () => {
                 console.log("Location:", value.name, "Type:", value.type);
                 this.room.send("move", value.name);
             });
             this.locations.push(temp);
+            
         });
     }
 
