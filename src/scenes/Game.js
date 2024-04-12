@@ -8,6 +8,9 @@ export class Game extends Phaser.Scene {
 
     playerEntities = {};
     locations = [];
+    selectedPerson = null;
+    selectedPlace = null;
+    selectedWeapon = null;
     
     constructor() {
         super({key: 'game'});
@@ -74,20 +77,58 @@ export class Game extends Phaser.Scene {
         // Receive updates from server
         // onAdd may not work as we intend. Might be better if we loop through clientPlayers instead (once they've all been added). Can try what we have now first though
 
+        const personOption = this.add.dom(100, 550, "#optPerson");
+        personOption.setVisible(false);
+        personOption.addListener('change');
+        personOption.on('change', (event) => {
+            this.selectedPerson = event.target.value;
+        });
+        
+        const placeOption = this.add.dom(300, 550, "#optPlace");
+        placeOption.setVisible(false);
+        placeOption.addListener('change');
+        placeOption.on('change', (event) => {
+            this.selectedPlace = event.target.value;
+        });
+        
+        const weaponOption = this.add.dom(500, 550, "#optWeapon");
+        weaponOption.setVisible(false);
+        weaponOption.addListener('change');
+        weaponOption.on('change', (event) => {
+            this.selectedWeapon = event.target.value;
+        });
+        
+        const accusationBtn = this.add.text(100, 500, 'Make an Accusation', { fill: '#0f0' });
+        accusationBtn.setInteractive();
+        accusationBtn.setVisible(false);
+        accusationBtn.on('pointerdown', () => {
+            let accusationMessage = {
+                person: this.selectedPerson,
+                place: this.selectedPlace,
+                weapon: this.selectedWeapon
+            };
+            this.room.send("accusation", accusationMessage);
+        });
+
         const startButton = this.add.text(100, 100, 'Start Game', { fill: '#0f0' });
         
         this.room.onMessage("drawboard", (client, message) => {
             this.drawBoard();
             startButton.removeFromDisplayList();
           });
-        
-        
+
+          
         startButton.setInteractive();
         startButton.on('pointerdown', () => {
             console.log('Starting game with ' + this.room.state.clientPlayers.size + ' players!');
             this.room.send("startGame", this.room.state.clientPlayers.size);
             this.drawBoard(); // This method will create all of the images for the board
             startButton.removeFromDisplayList();
+
+            accusationBtn.setVisible(true);
+            personOption.setVisible(true);
+            placeOption.setVisible(true);
+            weaponOption.setVisible(true);
         });
 
         this.room.state.clientPlayers.onAdd((player, sessionId) => {
