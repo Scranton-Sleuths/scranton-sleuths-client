@@ -77,6 +77,18 @@ export class Game extends Phaser.Scene {
         // Receive updates from server
         // onAdd may not work as we intend. Might be better if we loop through clientPlayers instead (once they've all been added). Can try what we have now first though
 
+        // TODO: this message should be updated to reflect the current player's turn,
+        // as well as any suggestions, accusations that get made
+        const gameStatusMessage = this.add.text(0, 0, "");
+        const gameOverButton = this.add.text(550, 10, "Game Over");
+        gameOverButton.setVisible(false);
+        gameOverButton.setInteractive();
+        gameOverButton.on('pointerdown', () => {
+            gameOverButton.setVisible(false);
+            gameStatusMessage.setText("");
+            this.game.scene.switch("game", "lobby");
+        });
+
         const personOption = this.add.dom(100, 550, "#optPerson");
         personOption.setVisible(false);
         personOption.addListener('change');
@@ -111,13 +123,6 @@ export class Game extends Phaser.Scene {
         });
 
         const startButton = this.add.text(100, 100, 'Start Game', { fill: '#0f0' });
-        
-        this.room.onMessage("drawboard", (client, message) => {
-            this.drawBoard();
-            startButton.removeFromDisplayList();
-          });
-
-          
         startButton.setInteractive();
         startButton.on('pointerdown', () => {
             console.log('Starting game with ' + this.room.state.clientPlayers.size + ' players!');
@@ -129,6 +134,26 @@ export class Game extends Phaser.Scene {
             personOption.setVisible(true);
             placeOption.setVisible(true);
             weaponOption.setVisible(true);
+        });
+
+                
+        this.room.onMessage("drawboard", (client, message) => {
+            this.drawBoard();
+            startButton.removeFromDisplayList();
+        });
+
+        this.room.onMessage("correctAccusation", (message) => {
+            gameStatusMessage.setText("Your accusation is correct! Congratulations, you win!");
+            gameOverButton.setVisible(true);
+        });
+
+        this.room.onMessage("wrongAccusation", (message) => {
+            gameStatusMessage.setText(
+`Incorrect! The answer was:
+Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon} 
+You have been eliminated from the game. 
+Continue to Respond to Suggestions until the game is over.`);
+            accusationBtn.setVisible(false);
         });
 
         this.room.state.clientPlayers.onAdd((player, sessionId) => {
