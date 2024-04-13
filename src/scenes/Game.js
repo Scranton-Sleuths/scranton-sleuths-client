@@ -8,7 +8,6 @@ export class Game extends Phaser.Scene {
 
     playerEntities = {};
     locations = [];
-    playerId = null;
     
     constructor() {
         super({key: 'game'});
@@ -47,20 +46,6 @@ export class Game extends Phaser.Scene {
             this.locations.push(temp);
             
         });
-    
-        var card_string = "";
-        console.log(this.playerId);
-        var player_ref = this.room.state.clientPlayers.get(this.playerId);
-        console.log(player_ref.cards);
-        console.log(player_ref.cards[0]);
-        player_ref.cards.forEach((element) => {
-            console.log(element.name);
-            card_string += element.name + "\n";
-        });
-
-        console.log(card_string);
-
-        this.add.text(600, 100, card_string, { fill: '#0f0' });
     }
 
     async connect() {
@@ -95,6 +80,17 @@ export class Game extends Phaser.Scene {
             this.drawBoard();
             startButton.removeFromDisplayList();
           });
+
+        this.room.onMessage("dealCards", (message) => {
+            var card_string = "Your Cards:\n";
+            var cards_json = JSON.parse(message);
+
+            for(var key in cards_json) {
+                card_string += cards_json[key] + "\n";
+            }
+
+            this.add.text(800, 100, card_string, { fill: '#0f0' });
+        });
         
         
         startButton.setInteractive();
@@ -115,7 +111,6 @@ export class Game extends Phaser.Scene {
             // For now, just add text for the players
             const entity = this.add.text(player.startX, player.startY, player.name, { fill: '#0f0' });
             this.playerEntities[sessionId] = entity;
-            this.playerId = sessionId;
 
             // listening for server updates
             player.onChange(() => {

@@ -8,7 +8,7 @@ import { Game } from "./scenes/Game";
 const config = {
     type: Phaser.AUTO,
 	parent: 'phaser',
-    width: 800,
+    width: 1000,
     height: 600,
 	pixelArt: true, /* these settings make it so it isn't blurry */
 	antialias: false, /* ditto */
