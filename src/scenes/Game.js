@@ -121,7 +121,7 @@ export class Game extends Phaser.Scene {
             };
             this.room.send("accusation", accusationMessage);
         });
-
+        
         const startButton = this.add.text(100, 100, 'Start Game', { fill: '#0f0' });
         startButton.setInteractive();
         startButton.on('pointerdown', () => {
@@ -129,6 +129,16 @@ export class Game extends Phaser.Scene {
             this.room.send("startGame", this.room.state.clientPlayers.size);
         });
 
+        this.room.onMessage("dealCards", (message) => {
+            var card_string = "Your Cards:\n";
+            var cards_json = JSON.parse(message);
+
+            for(var key in cards_json) {
+                card_string += cards_json[key] + "\n";
+            }
+
+            this.add.text(800, 100, card_string, { fill: '#0f0' });
+        });
                 
         this.room.onMessage("drawboard", (client, message) => {
             this.drawBoard();// This method will create all of the images for the board
