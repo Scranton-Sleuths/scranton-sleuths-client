@@ -34,6 +34,9 @@ export class Lobby extends Phaser.Scene {
         // Connect to the lobby
         await this.connect();
 
+        // hide input form
+        const hiddenForm = this.add.dom(100, 550, "#myForm");
+        hiddenForm.setVisible(false);
 
         // Respond to player clicking buttons
         
