@@ -127,19 +127,17 @@ export class Game extends Phaser.Scene {
         startButton.on('pointerdown', () => {
             console.log('Starting game with ' + this.room.state.clientPlayers.size + ' players!');
             this.room.send("startGame", this.room.state.clientPlayers.size);
-            this.drawBoard(); // This method will create all of the images for the board
-            startButton.removeFromDisplayList();
-
-            accusationBtn.setVisible(true);
-            personOption.setVisible(true);
-            placeOption.setVisible(true);
-            weaponOption.setVisible(true);
         });
 
                 
         this.room.onMessage("drawboard", (client, message) => {
-            this.drawBoard();
+            this.drawBoard();// This method will create all of the images for the board
             startButton.removeFromDisplayList();
+            
+            accusationBtn.setVisible(true);
+            personOption.setVisible(true);
+            placeOption.setVisible(true);
+            weaponOption.setVisible(true);
         });
 
         this.room.onMessage("correctAccusation", (message) => {
