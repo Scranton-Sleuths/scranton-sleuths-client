@@ -8,7 +8,7 @@ export class Game extends Phaser.Scene {
 
     playerEntities = {};
     locations = [];
-    //playerId = null;
+    playerId = null;
     
     constructor() {
         super({key: 'game'});
@@ -48,19 +48,19 @@ export class Game extends Phaser.Scene {
             
         });
     
-        /*var card_string = "";
+        var card_string = "";
         console.log(this.playerId);
-        var player = this.room.state.clientPlayers[this.playerId];
-        console.log(player);
-        console.log(this.room.state.clientPlayers);
-        console.log(player.cards.length);
-        for(var ii = 0; ii < this.player.cards.length; ii++)
-        {
-            console.log(this.player.cards[ii]);
-            card_string += this.player.cards[ii] + "\n";
-        }
+        var player_ref = this.room.state.clientPlayers.get(this.playerId);
+        console.log(player_ref.cards);
+        console.log(player_ref.cards[0]);
+        player_ref.cards.forEach((element) => {
+            console.log(element.name);
+            card_string += element.name + "\n";
+        });
 
-        this.add.text(600, 100, card_string, { fill: '#0f0' });*/
+        console.log(card_string);
+
+        this.add.text(600, 100, card_string, { fill: '#0f0' });
     }
 
     async connect() {
@@ -115,7 +115,7 @@ export class Game extends Phaser.Scene {
             // For now, just add text for the players
             const entity = this.add.text(player.startX, player.startY, player.name, { fill: '#0f0' });
             this.playerEntities[sessionId] = entity;
-            //this.playerId = sessionId;
+            this.playerId = sessionId;
 
             // listening for server updates
             player.onChange(() => {
