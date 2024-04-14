@@ -11,6 +11,7 @@ export class Game extends Phaser.Scene {
     selectedPerson = null;
     selectedPlace = null;
     selectedWeapon = null;
+    myturn = false;
     
     constructor() {
         super({key: 'game'});
@@ -88,6 +89,12 @@ export class Game extends Phaser.Scene {
             gameStatusMessage.setText("");
             this.game.scene.switch("game", "lobby");
         });
+        const endTurnButton = this.add.text(600, 550, "End My Turn");
+        endTurnButton.setVisible(false);
+        endTurnButton.setInteractive();
+        endTurnButton.on('pointerdown', () => {
+            this.room.send("endTurn", "");
+        });
 
         const personOption = this.add.dom(100, 550, "#optPerson");
         personOption.setVisible(false);
@@ -163,8 +170,33 @@ export class Game extends Phaser.Scene {
             weaponOption.setVisible(true);
         });
 
+        this.room.onMessage("newTurn", (message) => {
+            if (message.id == this.room.sessionId) {
+                // it's your turn!
+                this.myturn = true;
+                gameStatusMessage.setText("It's your turn!");
+                endTurnButton.setVisible(true);
+            }
+            else {
+                const turnName = message.name;
+                this.myturn = false;
+                gameStatusMessage.setText("It's " + turnName + "'s turn!");
+                endTurnButton.setVisible(false);
+            }
+        });
+
         this.room.onMessage("correctAccusation", (message) => {
-            gameStatusMessage.setText("Your accusation is correct! Congratulations, you win!");
+            if (this.room.sessionId == message.id) {
+                gameStatusMessage.setText("Your accusation is correct! Congratulations, you win!");
+            }
+            else {
+                gameStatusMessage.setText(
+`${message.accuser} solved the case! The answer was:
+Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon} 
+The game is now over. 
+Click the button to exit to the lobby and begin again!`
+                );
+            }
             gameOverButton.setVisible(true);
         });
 
