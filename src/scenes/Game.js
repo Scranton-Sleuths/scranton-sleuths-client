@@ -173,7 +173,17 @@ export class Game extends Phaser.Scene {
         });
 
         this.room.onMessage("correctAccusation", (message) => {
-            gameStatusMessage.setText("Your accusation is correct! Congratulations, you win!");
+            if (this.room.sessionId == message.id) {
+                gameStatusMessage.setText("Your accusation is correct! Congratulations, you win!");
+            }
+            else {
+                gameStatusMessage.setText(
+`${message.accuser} solved the case! The answer was:
+Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon} 
+The game is now over. 
+Click the button to exit to the lobby and begin again!`
+                );
+            }
             gameOverButton.setVisible(true);
         });
 
