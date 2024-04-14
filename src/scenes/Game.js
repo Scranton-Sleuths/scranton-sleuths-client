@@ -121,6 +121,18 @@ export class Game extends Phaser.Scene {
             };
             this.room.send("accusation", accusationMessage);
         });
+
+        const suggestionBtn = this.add.text(450, 500, 'Make an Suggestion', { fill: '#0f0' });
+        suggestionBtn.setInteractive();
+        suggestionBtn.setVisible(false);
+        suggestionBtn.on('pointerdown', () => {
+            let suggestionMes = {
+                person: this.selectedPerson,
+                place: this.selectedPlace,
+                weapon: this.selectedWeapon
+            };
+            this.room.send("suggestion", suggestionMes);
+        });
         
         const startButton = this.add.text(100, 100, 'Start Game', { fill: '#0f0' });
         startButton.setInteractive();
@@ -145,6 +157,7 @@ export class Game extends Phaser.Scene {
             startButton.removeFromDisplayList();
             
             accusationBtn.setVisible(true);
+            suggestionBtn.setVisible(true);
             personOption.setVisible(true);
             placeOption.setVisible(true);
             weaponOption.setVisible(true);
@@ -163,6 +176,11 @@ You have been eliminated from the game.
 Continue to Respond to Suggestions until the game is over.`);
             accusationBtn.setVisible(false);
         });
+
+        this.room.onMessage("suggestionMade", (message) => {
+            gameStatusMessage.setText(`${message.accuser} has made a suggestion!
+            Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon}`);
+        })
 
         this.room.state.clientPlayers.onAdd((player, sessionId) => {
             // let playerImage = blah
