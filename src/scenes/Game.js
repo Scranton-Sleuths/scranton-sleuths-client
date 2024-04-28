@@ -24,6 +24,22 @@ export class Game extends Phaser.Scene {
     preload() {
         // Load in images
         this.load.image('cat', require('../assets/cat.png'));
+        this.load.image('Conference Room', require('../assets/ConferenceRoom.png'));
+        this.load.image("Michael's Office", require('../assets/MichaelOffice.png'));
+        this.load.image('Bathroom', require('../assets/Bathroom.png'));
+        this.load.image('Kitchen', require('../assets/Kitchen.png'));
+        this.load.image('Break Room', require('../assets/BreakRoom.png'));
+        this.load.image('Warehouse', require('../assets/Warehouse2.png'));
+        this.load.image('Annex', require('../assets/Annex.png'));
+        this.load.image('Reception', require('../assets/Reception.png'));
+        this.load.image("Jim's Office", require('../assets/JimOffice.png'));
+        this.load.image('Characters', require('../assets/Chars.png'))
+        this.load.image('Michael Scott', require('../assets/Michael.png'))
+        this.load.image('Dwight Schrutte', require('../assets/Dwight.png'))
+        this.load.image('Jim Halpert', require('../assets/Jim.png'))
+        this.load.image('Pam Beesly', require('../assets/Pam.png'))
+        this.load.image('Angela Martin', require('../assets/Angela.png'))
+        this.load.image('Andy Bernard', require('../assets/Andy.png'))
     }
 
     update() {
@@ -37,7 +53,7 @@ export class Game extends Phaser.Scene {
             // For now, just add text instead of image
             let temp;
             if (value.type == "room") {
-                temp = this.add.text(value.x, value.y, value.name);
+                temp = this.add.image(value.x, value.y, value.name);
             }
             else {
                 temp = this.add.text(value.x, value.y, "| |");
@@ -50,6 +66,8 @@ export class Game extends Phaser.Scene {
             this.locations.push(temp);
             
         });
+        let characters = this.add.image(500, 850, 'Characters');
+        characters.setScale(.5);
     }
 
     async connect() {
@@ -89,35 +107,35 @@ export class Game extends Phaser.Scene {
             gameStatusMessage.setText("");
             this.game.scene.switch("game", "lobby");
         });
-        const endTurnButton = this.add.text(600, 550, "End My Turn");
+        const endTurnButton = this.add.text(600, 700, "End My Turn");
         endTurnButton.setVisible(false);
         endTurnButton.setInteractive();
         endTurnButton.on('pointerdown', () => {
             this.room.send("endTurn", "");
         });
 
-        const personOption = this.add.dom(100, 550, "#optPerson");
+        const personOption = this.add.dom(100, 700, "#optPerson");
         personOption.setVisible(false);
         personOption.addListener('change');
         personOption.on('change', (event) => {
             this.selectedPerson = event.target.value;
         });
         
-        const placeOption = this.add.dom(300, 550, "#optPlace");
+        const placeOption = this.add.dom(300, 700, "#optPlace");
         placeOption.setVisible(false);
         placeOption.addListener('change');
         placeOption.on('change', (event) => {
             this.selectedPlace = event.target.value;
         });
         
-        const weaponOption = this.add.dom(500, 550, "#optWeapon");
+        const weaponOption = this.add.dom(500, 700, "#optWeapon");
         weaponOption.setVisible(false);
         weaponOption.addListener('change');
         weaponOption.on('change', (event) => {
             this.selectedWeapon = event.target.value;
         });
         
-        const accusationBtn = this.add.text(100, 500, 'Make an Accusation', { fill: '#0f0' });
+        const accusationBtn = this.add.text(100, 650, 'Make an Accusation', { fill: '#0f0' });
         accusationBtn.setInteractive();
         accusationBtn.setVisible(false);
         accusationBtn.on('pointerdown', () => {
@@ -129,7 +147,7 @@ export class Game extends Phaser.Scene {
             this.room.send("accusation", accusationMessage);
         });
 
-        const suggestionBtn = this.add.text(450, 500, 'Make an Suggestion', { fill: '#0f0' });
+        const suggestionBtn = this.add.text(450, 650, 'Make an Suggestion', { fill: '#0f0' });
         suggestionBtn.setInteractive();
         suggestionBtn.setVisible(false);
         suggestionBtn.on('pointerdown', () => {
@@ -156,7 +174,7 @@ export class Game extends Phaser.Scene {
                 card_string += cards_json[key] + "\n";
             }
 
-            this.add.text(800, 100, card_string, { fill: '#0f0' });
+            this.add.text(1000, 100, card_string, { fill: '#0f0' });
         });
                 
         this.room.onMessage("drawboard", (client, message) => {
@@ -222,7 +240,9 @@ Continue to Respond to Suggestions until the game is over.`);
             //const entity = this.physics.add.image(300, 300, 'cat'); // The image loaded and x/y will have to be based on whatever the server says for the player
 
             // For now, just add text for the players
-            const entity = this.add.text(player.startX, player.startY, player.name, { fill: '#0f0' });
+            const entity = this.add.image(player.startX, player.startY, player.name);
+            entity.setScale(.3);
+            entity.setDepth(1);
             this.playerEntities[sessionId] = entity;
 
             // listening for server updates
