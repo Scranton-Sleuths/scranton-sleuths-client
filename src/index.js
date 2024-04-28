@@ -8,14 +8,15 @@ import { Game } from "./scenes/Game";
 const config = {
     type: Phaser.AUTO,
 	parent: 'phaser',
-    width: 1000,
-    height: 600,
+    width: 1200,
+    height: 1000,
 	pixelArt: true, /* these settings make it so it isn't blurry */
 	antialias: false, /* ditto */
 	roundPixels: true, /* if your pixel art seems 'warped' make sure this is true! */
     physics: {
         default: "arcade"
     },
+    backgroundColor: '#808080',
     dom: {
         createContainer: true
     },
