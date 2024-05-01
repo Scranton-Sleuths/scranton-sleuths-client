@@ -78,10 +78,9 @@ export class Game extends Phaser.Scene {
         this.load.image('Calculator Card', require('../assets/cards/Calculator.png'));
         this.load.image('Pencil Card', require('../assets/cards/Pencil.png'));
         this.load.image("Dwight's Nunchucks Card", require('../assets/cards/Nunchucks.png'));
-        this.load.image('Mug Card', require('../assets/cards/Mug.png'));
+        this.load.image('Mug Card', require('../assets/cards/Mug.png'));        
+        this.load.image('None Card', require('../assets/cards/None.png'));
         this.load.image('Selected Card', require('../assets/cards/selected.png'));
-
-
     }
 
     update() {
@@ -242,17 +241,20 @@ export class Game extends Phaser.Scene {
         selectedCircle.setVisible(false);
         selectedCircle.setDepth(1);
 
+        let noneCard = null;
+
         this.room.onMessage("dealCards", (message) => {
             let card_header = this.add.image(1020, 25, "Your Cards");
             card_header.setScale(0.7);
             var cards_json = JSON.parse(message);
+            cards_json[Object.keys(cards_json).length] = "None";
             let i = 0;
             for(var key in cards_json) {
                 let x = 900 + 85 * (i % 4); // x
                 let y = 100 + 110 * Math.floor(i / 4); // y
                 let card_name = cards_json[key];
                 var card_img = 
-                    this.add.image(x, y, cards_json[key] + " Card");
+                    this.add.image(x, y, card_name + " Card");
                 card_img.setScale(0.6);
                 card_img.setInteractive();
                 card_img.setDepth(0);
@@ -262,6 +264,10 @@ export class Game extends Phaser.Scene {
                     selectedCircle.setY(y);
                     selectedCircle.setVisible(true);
                 });
+                if (card_name == "None") {
+                    noneCard = card_img;
+                    noneCard.setVisible(false);
+                }
                 i++;
             }
         });
