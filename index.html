@@ -14,6 +14,13 @@
 
         div.menu { padding: 1em; }
         div.menu > div { margin-bottom: 0.1em; }
+        select {
+            font-family: inherit;
+            font-size: 130%;
+            appearance: auto;
+            background-color: rgb(107, 65, 2);
+            color: bisque;
+        }
     </style>
 </head>
 <body>
@@ -22,7 +29,7 @@
 
     <form id="myForm">
         <select id="optPerson">
-            <option selected disabled>Please choose...</option>
+            <option selected disabled>Choose a Person...</option>
             <option value="Michael Scott">Michael Scott</option>
             <option value="Dwight Schrutte">Dwight Schrutte</option>
             <option value="Jim Halpert">Jim Halpert</option>
@@ -31,7 +38,7 @@
             <option value="Andy Bernard">Andy Bernard</option>
         </select>  
         <select id="optPlace">
-            <option selected disabled>Please choose...</option>
+            <option selected disabled>Choose a Room...</option>
             <option value="Conference Room">Conference Room</option>
             <option value="Michael's Office">Michael's Office</option>
             <option value="Bathroom">Bathroom</option>
@@ -43,7 +50,7 @@
             <option value="Jim's Office">Jim's Office</option>
         </select>  
         <select id="optWeapon">
-            <option selected disabled>Please choose...</option>
+            <option selected disabled>Choose a Weapon...</option>
             <option value="Stapler">Stapler</option>
             <option value="Mug">Mug</option>
             <option value="Scissors">Scissors</option>

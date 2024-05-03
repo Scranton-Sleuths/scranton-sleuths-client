@@ -12,6 +12,12 @@ export class Game extends Phaser.Scene {
     selectedPlace = null;
     selectedWeapon = null;
     myturn = false;
+    gameStatusMessage = null;
+    myname = "";
+    sideways_halls = ["Conference Room_Michael's Office", "Michael's Office_Bathroom",
+    "Kitchen_Break Room", "Break Room_Warehouse",
+    "Annex_Reception", "Reception_Jim's Office"];
+    selectedCard = "";
     
     constructor() {
         super({key: 'game'});
@@ -24,22 +30,57 @@ export class Game extends Phaser.Scene {
     preload() {
         // Load in images
         this.load.image('cat', require('../assets/cat.png'));
-        this.load.image('Conference Room', require('../assets/ConferenceRoom.png'));
-        this.load.image("Michael's Office", require('../assets/MichaelOffice.png'));
-        this.load.image('Bathroom', require('../assets/Bathroom.png'));
-        this.load.image('Kitchen', require('../assets/Kitchen.png'));
-        this.load.image('Break Room', require('../assets/BreakRoom.png'));
-        this.load.image('Warehouse', require('../assets/Warehouse2.png'));
-        this.load.image('Annex', require('../assets/Annex.png'));
-        this.load.image('Reception', require('../assets/Reception.png'));
-        this.load.image("Jim's Office", require('../assets/JimOffice.png'));
-        this.load.image('Characters', require('../assets/Chars.png'))
-        this.load.image('Michael Scott', require('../assets/Michael.png'))
-        this.load.image('Dwight Schrutte', require('../assets/Dwight.png'))
-        this.load.image('Jim Halpert', require('../assets/Jim.png'))
-        this.load.image('Pam Beesly', require('../assets/Pam.png'))
-        this.load.image('Angela Martin', require('../assets/Angela.png'))
-        this.load.image('Andy Bernard', require('../assets/Andy.png'))
+        // Room images
+        this.load.image('Conference Room', require('../assets/rooms/ConferenceRoom.png'));
+        this.load.image("Michael's Office", require('../assets/rooms/MichaelOffice.png'));
+        this.load.image('Bathroom', require('../assets/rooms/Bathroom.png'));
+        this.load.image('Kitchen', require('../assets/rooms/Kitchen.png'));
+        this.load.image('Break Room', require('../assets/rooms/BreakRoom.png'));
+        this.load.image('Warehouse', require('../assets/rooms/Warehouse2.png'));
+        this.load.image('Annex', require('../assets/rooms/Annex.png'));
+        this.load.image('Reception', require('../assets/rooms/Reception.png'));
+        this.load.image("Jim's Office", require('../assets/rooms/JimOffice.png'));
+        this.load.image('Hallway', require('../assets/rooms/hallway2.png'));
+        // Character Images
+        this.load.image('Characters', require('../assets/characters/Chars.png'));
+        this.load.image('Michael Scott', require('../assets/characters/Michael.png'));
+        this.load.image('Dwight Schrutte', require('../assets/characters/Dwight.png'));
+        this.load.image('Jim Halpert', require('../assets/characters/Jim.png'));
+        this.load.image('Pam Beesly', require('../assets/characters/Pam.png'));
+        this.load.image('Angela Martin', require('../assets/characters/Angela.png'));
+        this.load.image('Andy Bernard', require('../assets/characters/Andy.png'));
+        // Button Images
+        this.load.image('Start Game', require('../assets/buttons/startgame.png'));
+        this.load.image('End Turn', require('../assets/buttons/endturn.png'));
+        this.load.image('Suggestion Btn', require('../assets/buttons/suggestionbtn.png'));
+        this.load.image('Accusation Btn', require('../assets/buttons/accusationbtn.png'));
+        this.load.image('Respond Btn', require('../assets/buttons/respondbtn.png'));
+        this.load.image('Game Over', require('../assets/buttons/gameover.png'));
+        // Card Images
+        this.load.image('Your Cards', require('../assets/cards/yourcards.png'));
+        this.load.image('Conference Room Card', require('../assets/cards/ConferenceRoom.png'));
+        this.load.image("Michael's Office Card", require('../assets/cards/MichaelsOffice.png'));
+        this.load.image('Bathroom Card', require('../assets/cards/Bathroom.png'));
+        this.load.image('Kitchen Card', require('../assets/cards/Kitchen.png'));
+        this.load.image('Break Room Card', require('../assets/cards/BreakRoom.png'));
+        this.load.image('Warehouse Card', require('../assets/cards/Warehouse.png'));
+        this.load.image('Annex Card', require('../assets/cards/Annex.png'));
+        this.load.image('Reception Card', require('../assets/cards/Reception.png'));
+        this.load.image("Jim's Office Card", require('../assets/cards/JimsOffice.png'));
+        this.load.image('Michael Scott Card', require('../assets/cards/MichaelScott.png'));
+        this.load.image('Dwight Schrutte Card', require('../assets/cards/DwightSchrute.png'));
+        this.load.image('Jim Halpert Card', require('../assets/cards/JimHalpert.png'));
+        this.load.image('Pam Beesly Card', require('../assets/cards/PamBeesly.png'));
+        this.load.image('Angela Martin Card', require('../assets/cards/AngelaMartin.png'));
+        this.load.image('Andy Bernard Card', require('../assets/cards/AndyBernard.png'));
+        this.load.image('Stapler Card', require('../assets/cards/Stapler.png'));
+        this.load.image('Scissors Card', require('../assets/cards/Scissors.png'));
+        this.load.image('Calculator Card', require('../assets/cards/Calculator.png'));
+        this.load.image('Pencil Card', require('../assets/cards/Pencil.png'));
+        this.load.image("Dwight's Nunchucks Card", require('../assets/cards/Nunchucks.png'));
+        this.load.image('Mug Card', require('../assets/cards/Mug.png'));        
+        this.load.image('None Card', require('../assets/cards/None.png'));
+        this.load.image('Selected Card', require('../assets/cards/selected.png'));
     }
 
     update() {
@@ -54,9 +95,15 @@ export class Game extends Phaser.Scene {
             let temp;
             if (value.type == "room") {
                 temp = this.add.image(value.x, value.y, value.name);
+                temp.setDepth(0.1);
             }
             else {
-                temp = this.add.text(value.x, value.y, "| |");
+                temp = this.add.image(value.x, value.y, "Hallway");
+                temp.setScale(0.9);
+                temp.setDepth(0);
+                if (this.sideways_halls.includes(value.name)) {
+                    temp.setAngle(90);
+                }
             }
             temp.setInteractive();
             temp.on('pointerdown', () => {
@@ -68,6 +115,12 @@ export class Game extends Phaser.Scene {
         });
         let characters = this.add.image(500, 850, 'Characters');
         characters.setScale(.5);
+        this.myname = this.room.state.clientPlayers.get(this.room.sessionId).name;
+        let message = `Welcome! You are ${this.myname}. `;
+        if (this.myturn) {
+            message = message + `It's your turn!`;
+        }
+        this.gameStatusMessage.setText(message);
     }
 
     async connect() {
@@ -98,44 +151,60 @@ export class Game extends Phaser.Scene {
 
         // TODO: this message should be updated to reflect the current player's turn,
         // as well as any suggestions, accusations that get made
-        const gameStatusMessage = this.add.text(0, 0, "");
-        const gameOverButton = this.add.text(550, 10, "Game Over");
+        this.gameStatusMessage = this.add.text(0, 0, "");
+        const gameOverButton = this.add.image(750, 20, "Game Over");
+        gameOverButton.setScale(0.75);
         gameOverButton.setVisible(false);
         gameOverButton.setInteractive();
         gameOverButton.on('pointerdown', () => {
             gameOverButton.setVisible(false);
-            gameStatusMessage.setText("");
+            this.gameStatusMessage.setText("");
             this.game.scene.switch("game", "lobby");
         });
-        const endTurnButton = this.add.text(600, 700, "End My Turn");
+        const endTurnButton = this.add.image(950, 700, "End Turn");
+        endTurnButton.setScale(0.75);
         endTurnButton.setVisible(false);
         endTurnButton.setInteractive();
         endTurnButton.on('pointerdown', () => {
             this.room.send("endTurn", "");
         });
 
-        const personOption = this.add.dom(100, 700, "#optPerson");
+        const personOption = this.add.dom(200, 700, "#optPerson");
         personOption.setVisible(false);
         personOption.addListener('change');
         personOption.on('change', (event) => {
             this.selectedPerson = event.target.value;
         });
         
-        const placeOption = this.add.dom(300, 700, "#optPlace");
+        const placeOption = this.add.dom(450, 700, "#optPlace");
         placeOption.setVisible(false);
         placeOption.addListener('change');
         placeOption.on('change', (event) => {
             this.selectedPlace = event.target.value;
         });
         
-        const weaponOption = this.add.dom(500, 700, "#optWeapon");
+        const weaponOption = this.add.dom(700, 700, "#optWeapon");
         weaponOption.setVisible(false);
         weaponOption.addListener('change');
         weaponOption.on('change', (event) => {
             this.selectedWeapon = event.target.value;
         });
-        
-        const accusationBtn = this.add.text(100, 650, 'Make an Accusation', { fill: '#0f0' });
+   
+        const suggestionBtn = this.add.image(300, 625, 'Suggestion Btn');
+        suggestionBtn.setScale(0.75);
+        suggestionBtn.setInteractive();
+        suggestionBtn.setVisible(false);
+        suggestionBtn.on('pointerdown', () => {
+            let suggestionMes = {
+                person: this.selectedPerson,
+                place: this.selectedPlace,
+                weapon: this.selectedWeapon
+            };
+            this.room.send("suggestion", suggestionMes);
+        });
+
+        const accusationBtn = this.add.image(600, 625, 'Accusation Btn');
+        accusationBtn.setScale(0.75);
         accusationBtn.setInteractive();
         accusationBtn.setVisible(false);
         accusationBtn.on('pointerdown', () => {
@@ -147,34 +216,60 @@ export class Game extends Phaser.Scene {
             this.room.send("accusation", accusationMessage);
         });
 
-        const suggestionBtn = this.add.text(450, 650, 'Make an Suggestion', { fill: '#0f0' });
-        suggestionBtn.setInteractive();
-        suggestionBtn.setVisible(false);
-        suggestionBtn.on('pointerdown', () => {
-            let suggestionMes = {
-                person: this.selectedPerson,
-                place: this.selectedPlace,
-                weapon: this.selectedWeapon
+        const respondBtn = this.add.image(900, 625, 'Respond Btn');
+        respondBtn.setScale(0.75);
+        respondBtn.setInteractive();
+        respondBtn.setVisible(false);
+        respondBtn.on('pointerdown', () => {
+            let responseMes = {
+                card: this.selectedCard
             };
-            this.room.send("suggestion", suggestionMes);
+            this.room.send("response", responseMes);
+            respondBtn.setVisible(false);
         });
         
-        const startButton = this.add.text(100, 100, 'Start Game', { fill: '#0f0' });
+        const startButton = this.add.image(600, 500, 'Start Game');
+        startButton.setScale(0.75);
         startButton.setInteractive();
         startButton.on('pointerdown', () => {
             console.log('Starting game with ' + this.room.state.clientPlayers.size + ' players!');
             this.room.send("startGame", this.room.state.clientPlayers.size);
         });
 
+        const selectedCircle = this.add.image(0, 0, 'Selected Card');
+        selectedCircle.setScale(0.5);
+        selectedCircle.setVisible(false);
+        selectedCircle.setDepth(1);
+
+        let noneCard = null;
+
         this.room.onMessage("dealCards", (message) => {
-            var card_string = "Your Cards:\n";
+            let card_header = this.add.image(1020, 25, "Your Cards");
+            card_header.setScale(0.7);
             var cards_json = JSON.parse(message);
-
+            cards_json[Object.keys(cards_json).length] = "None";
+            let i = 0;
             for(var key in cards_json) {
-                card_string += cards_json[key] + "\n";
+                let x = 900 + 85 * (i % 4); // x
+                let y = 100 + 110 * Math.floor(i / 4); // y
+                let card_name = cards_json[key];
+                var card_img = 
+                    this.add.image(x, y, card_name + " Card");
+                card_img.setScale(0.6);
+                card_img.setInteractive();
+                card_img.setDepth(0);
+                card_img.on('pointerdown', () => {
+                    this.selectedCard = card_name;
+                    selectedCircle.setX(x);
+                    selectedCircle.setY(y);
+                    selectedCircle.setVisible(true);
+                });
+                if (card_name == "None") {
+                    noneCard = card_img;
+                    noneCard.setVisible(false);
+                }
+                i++;
             }
-
-            this.add.text(1000, 100, card_string, { fill: '#0f0' });
         });
                 
         this.room.onMessage("drawboard", (client, message) => {
@@ -192,23 +287,23 @@ export class Game extends Phaser.Scene {
             if (message.id == this.room.sessionId) {
                 // it's your turn!
                 this.myturn = true;
-                gameStatusMessage.setText("It's your turn!");
+                this.gameStatusMessage.setText("It's your turn!");
                 endTurnButton.setVisible(true);
             }
             else {
                 const turnName = message.name;
                 this.myturn = false;
-                gameStatusMessage.setText("It's " + turnName + "'s turn!");
+                this.gameStatusMessage.setText("It's " + turnName + "'s turn!");
                 endTurnButton.setVisible(false);
             }
         });
 
         this.room.onMessage("correctAccusation", (message) => {
             if (this.room.sessionId == message.id) {
-                gameStatusMessage.setText("Your accusation is correct! Congratulations, you win!");
+                this.gameStatusMessage.setText("Your accusation is correct! Congratulations, you win!");
             }
             else {
-                gameStatusMessage.setText(
+                this.gameStatusMessage.setText(
 `${message.accuser} solved the case! The answer was:
 Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon} 
 The game is now over. 
@@ -219,7 +314,7 @@ Click the button to exit to the lobby and begin again!`
         });
 
         this.room.onMessage("wrongAccusation", (message) => {
-            gameStatusMessage.setText(
+            this.gameStatusMessage.setText(
 `Incorrect! The answer was:
 Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon} 
 You have been eliminated from the game. 
@@ -227,8 +322,23 @@ Continue to Respond to Suggestions until the game is over.`);
             accusationBtn.setVisible(false);
         });
 
+        this.room.onMessage("playerOut", (message) => {
+            this.gameStatusMessage.setText(
+`Oh no! ${message} made an incorrect accusation!
+They are no longer able to move or make suggestions, 
+but will continue to respond to suggestions.`);
+        });
+
+        this.room.onMessage("gameOver", (message) => {
+            this.gameStatusMessage.setText(
+`Rats! All players have guessed incorrectly. The answer was:
+Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon} 
+The game is now over. Click to return to the lobby.`);
+            gameOverButton.setVisible(true);
+        });
+
         this.room.onMessage("suggestionMade", (message) => {
-            gameStatusMessage.setText(`${message.accuser} has made a suggestion!
+            this.gameStatusMessage.setText(`${message.accuser} has made a suggestion!
             Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon}`);
         })
 
@@ -239,7 +349,7 @@ Continue to Respond to Suggestions until the game is over.`);
             // When the player joins, they will be put into the correct position. This will happen before the board is loaded, thats okay
             //const entity = this.physics.add.image(300, 300, 'cat'); // The image loaded and x/y will have to be based on whatever the server says for the player
 
-            // For now, just add text for the players
+            // Add images for the players
             const entity = this.add.image(player.startX, player.startY, player.name);
             entity.setScale(.3);
             entity.setDepth(1);
