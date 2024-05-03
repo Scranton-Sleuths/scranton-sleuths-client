@@ -96,22 +96,27 @@ export class Game extends Phaser.Scene {
             if (value.type == "room") {
                 temp = this.add.image(value.x, value.y, value.name);
                 temp.setDepth(0.1);
+                temp.setInteractive();
+                temp.on('pointerdown', () => {
+                    console.log("Location:", value.name, "Type:", value.type);
+                    this.room.send("move", value.name);
+                });
+                this.locations.push(temp);
             }
-            else {
+            else if (value.type == "hallway") {
                 temp = this.add.image(value.x, value.y, "Hallway");
                 temp.setScale(0.9);
                 temp.setDepth(0);
                 if (this.sideways_halls.includes(value.name)) {
                     temp.setAngle(90);
                 }
+                temp.setInteractive();
+                temp.on('pointerdown', () => {
+                    console.log("Location:", value.name, "Type:", value.type);
+                    this.room.send("move", value.name);
+                });
+                this.locations.push(temp);
             }
-            temp.setInteractive();
-            temp.on('pointerdown', () => {
-                console.log("Location:", value.name, "Type:", value.type);
-                this.room.send("move", value.name);
-            });
-            this.locations.push(temp);
-            
         });
         let characters = this.add.image(500, 850, 'Characters');
         characters.setScale(.5);
@@ -151,7 +156,7 @@ export class Game extends Phaser.Scene {
 
         // TODO: this message should be updated to reflect the current player's turn,
         // as well as any suggestions, accusations that get made
-        const gameStatusMessage = this.add.text(0, 0, "");
+        this.gameStatusMessage = this.add.text(0, 0, "");
         const gameOverButton = this.add.text(750, 10, "New Game");
 
         gameOverButton.setScale(0.75);
@@ -159,7 +164,7 @@ export class Game extends Phaser.Scene {
         gameOverButton.setInteractive();
         gameOverButton.on('pointerdown', () => {
             gameOverButton.setVisible(false);
-            gameStatusMessage.setText("");
+            this.gameStatusMessage.setText("");
             
             this.room.send("resetGame","");
 
@@ -273,8 +278,6 @@ export class Game extends Phaser.Scene {
                 }
                 i++;
             }
-
-            this.cards = this.add.text(1000, 100, card_string, { fill: '#0f0' });
         });
 
         this.room.onMessage("reset", (message) => {
