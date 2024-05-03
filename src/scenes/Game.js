@@ -151,15 +151,18 @@ export class Game extends Phaser.Scene {
 
         // TODO: this message should be updated to reflect the current player's turn,
         // as well as any suggestions, accusations that get made
-        this.gameStatusMessage = this.add.text(0, 0, "");
-        const gameOverButton = this.add.image(750, 20, "Game Over");
+        const gameStatusMessage = this.add.text(0, 0, "");
+        const gameOverButton = this.add.text(750, 10, "New Game");
+
         gameOverButton.setScale(0.75);
         gameOverButton.setVisible(false);
         gameOverButton.setInteractive();
         gameOverButton.on('pointerdown', () => {
             gameOverButton.setVisible(false);
-            this.gameStatusMessage.setText("");
-            this.game.scene.switch("game", "lobby");
+            gameStatusMessage.setText("");
+            
+            this.room.send("resetGame","");
+
         });
         const endTurnButton = this.add.image(950, 700, "End Turn");
         endTurnButton.setScale(0.75);
@@ -270,6 +273,15 @@ export class Game extends Phaser.Scene {
                 }
                 i++;
             }
+
+            this.cards = this.add.text(1000, 100, card_string, { fill: '#0f0' });
+        });
+
+        this.room.onMessage("reset", (message) => {
+            console.log("Resetting!");
+            gameOverButton.setVisible(false);
+            accusationBtn.setVisible(true);
+            this.cards.destroy();
         });
                 
         this.room.onMessage("drawboard", (client, message) => {
