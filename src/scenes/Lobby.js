@@ -21,6 +21,7 @@ export class Lobby extends Phaser.Scene {
     preload() {
         this.load.html("form");
         this.load.image('cat', require('../assets/cat.png'));
+        this.load.image('Join Game', require('../assets/buttons/joingame.png'));
     }
 
     update() {
@@ -40,10 +41,11 @@ export class Lobby extends Phaser.Scene {
 
         // Respond to player clicking buttons
         
-        const joinButton = this.add.text(100, 100, 'Join Game', { fill: '#0f0' });
+        const joinButton = this.add.image(600, 500, 'Join Game');
+        joinButton.setScale(0.75);
         joinButton.setInteractive();
         joinButton.on('pointerdown', () => {
-            console.log('Joining game')
+            console.log('Joining game');
             this.game.scene.switch("lobby", "game");
             // The code to switch to the server game room will be in the Game.js file/scene
         });
