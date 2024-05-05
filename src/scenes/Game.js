@@ -18,6 +18,11 @@ export class Game extends Phaser.Scene {
     "Kitchen_Break Room", "Break Room_Warehouse",
     "Annex_Reception", "Reception_Jim's Office"];
     selectedCard = "";
+    suggestion = {
+        person: "",
+        place: "",
+        weapon: ""
+    }
     
     constructor() {
         super({key: 'game'});
@@ -230,7 +235,8 @@ export class Game extends Phaser.Scene {
         respondBtn.setVisible(false);
         respondBtn.on('pointerdown', () => {
             let responseMes = {
-                card: this.selectedCard
+                card: this.selectedCard,
+                sug: this.suggestion
             };
             this.room.send("response", responseMes);
             respondBtn.setVisible(false);
@@ -355,7 +361,30 @@ The game is now over. Click to return to the lobby.`);
         this.room.onMessage("suggestionMade", (message) => {
             this.gameStatusMessage.setText(`${message.accuser} has made a suggestion!
             Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon}`);
+            this.suggestion = {
+                person: message.person,
+                place: message.place,
+                weapon: message.weapon
+            }
+            respondBtn.setVisible(true)
         })
+        
+        this.room.onMessage("respondMessageValid", (message) => {
+
+            if (message.id == this.room.sessionId) {
+                this.gameStatusMessage.setText(`${message.name} has responded to a suggestion!
+                The card is: ${message.card}`)
+            }
+            else {
+                this.gameStatusMessage.setText(`${message.name} has responded to a suggestion!`)
+            }
+            respondBtn.setVisible(false);
+        })
+
+        this.room.onMessage("respondMessageInvalid", (message) => { 
+            respondBtn.setVisible(false);
+        })
+
 
         this.room.state.clientPlayers.onAdd((player, sessionId) => {
             // let playerImage = blah
