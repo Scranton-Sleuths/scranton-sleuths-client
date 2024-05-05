@@ -313,6 +313,13 @@ export class Game extends Phaser.Scene {
             }
         });
 
+        
+        this.room.onMessage("illegalAction", (message) => {
+            // update the game status message if the server
+            // rejects a certain action
+            this.gameStatusMessage.setText(message);
+        });
+
         this.room.onMessage("correctAccusation", (message) => {
             if (this.room.sessionId == message.id) {
                 this.gameStatusMessage.setText("Your accusation is correct! Congratulations, you win!");
@@ -397,6 +404,6 @@ The game is now over. Click to return to the lobby.`);
         // Here, we would also define any functions that respond to player input (ex, clicking on the board)
         // Similar to the "Join Game" button on Lobby scene
 
-    }
+    } // end create()
 
 }
