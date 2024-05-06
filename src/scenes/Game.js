@@ -18,11 +18,7 @@ export class Game extends Phaser.Scene {
     "Kitchen_Break Room", "Break Room_Warehouse",
     "Annex_Reception", "Reception_Jim's Office"];
     selectedCard = "";
-    suggestion = {
-        person: "",
-        place: "",
-        weapon: ""
-    }
+    suggestion = null;
     
     constructor() {
         super({key: 'game'});
@@ -209,6 +205,7 @@ export class Game extends Phaser.Scene {
         suggestionBtn.setVisible(false);
         suggestionBtn.on('pointerdown', () => {
             let suggestionMes = {
+                accuser: this.myname,
                 person: this.selectedPerson,
                 place: this.selectedPlace,
                 weapon: this.selectedWeapon
@@ -229,6 +226,7 @@ export class Game extends Phaser.Scene {
             this.room.send("accusation", accusationMessage);
         });
 
+        let noneCard = null;
         const respondBtn = this.add.image(900, 625, 'Respond Btn');
         respondBtn.setScale(0.75);
         respondBtn.setInteractive();
@@ -240,6 +238,7 @@ export class Game extends Phaser.Scene {
             };
             this.room.send("response", responseMes);
             respondBtn.setVisible(false);
+            noneCard.setVisible(false);
         });
         
         const startButton = this.add.image(600, 500, 'Start Game');
@@ -254,8 +253,6 @@ export class Game extends Phaser.Scene {
         selectedCircle.setScale(0.5);
         selectedCircle.setVisible(false);
         selectedCircle.setDepth(1);
-
-        let noneCard = null;
 
         this.room.onMessage("dealCards", (message) => {
             let card_header = this.add.image(1020, 25, "Your Cards");
@@ -325,6 +322,14 @@ export class Game extends Phaser.Scene {
             // rejects a certain action
             this.gameStatusMessage.setText(message);
         });
+        
+        this.room.onMessage("illegalResponse", (message) => {
+            // update the game status message if the server
+            // rejects a certain action
+            this.gameStatusMessage.setText(message);
+            respondBtn.setVisible(true);
+            noneCard.setVisible(true);
+        });
 
         this.room.onMessage("correctAccusation", (message) => {
             if (this.room.sessionId == message.id) {
@@ -368,28 +373,41 @@ The game is now over. Click to return to the lobby.`);
         this.room.onMessage("suggestionMade", (message) => {
             this.gameStatusMessage.setText(`${message.accuser} has made a suggestion!
             Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon}`);
-            this.suggestion = {
-                person: message.person,
-                place: message.place,
-                weapon: message.weapon
-            }
-            respondBtn.setVisible(true)
-        })
+            this.suggestion = message;
+            //respondBtn.setVisible(true)
+        });
+
+        this.room.onMessage("respondToSuggestion", (message) => {
+            this.gameStatusMessage.setText(`${message.accuser} has made a suggestion! Can you respond?
+            Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon}`);
+            this.suggestion = message;
+            respondBtn.setVisible(true);
+            noneCard.setVisible(true);
+        });
         
         this.room.onMessage("respondMessageValid", (message) => {
 
             if (message.id == this.room.sessionId) {
-                this.gameStatusMessage.setText(`${message.name} has responded to a suggestion!
+                this.gameStatusMessage.setText(`${message.name} has responded to your suggestion!
                 The card is: ${message.card}`)
             }
             else {
-                this.gameStatusMessage.setText(`${message.name} has responded to a suggestion!`)
+                this.gameStatusMessage.setText(`${message.name} has responded to the suggestion!`)
             }
             respondBtn.setVisible(false);
-        })
+            noneCard.setVisible(false);
+        });
 
         this.room.onMessage("respondMessageInvalid", (message) => { 
+            this.gameStatusMessage.setText(`${message.name} cannot respond to the suggestion!`);
             respondBtn.setVisible(false);
+            noneCard.setVisible(false);
+        });
+        
+        this.room.onMessage("noResponses", (message) => { 
+            this.gameStatusMessage.setText(`There are no responses to the suggestion!`);
+            respondBtn.setVisible(false);
+            noneCard.setVisible(false);
         })
 
 
