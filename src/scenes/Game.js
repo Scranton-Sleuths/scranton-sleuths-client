@@ -319,13 +319,13 @@ export class Game extends Phaser.Scene {
             }
         });
 
-        
+
         this.room.onMessage("illegalAction", (message) => {
             // update the game status message if the server
             // rejects a certain action
             this.gameStatusMessage.setText(message);
 
-            if(message == "Must move first!") {
+            if(message == "Must move first!" || "Must make suggestion after moving into room!") {
                 this.myturn = true;
                 this.gameStatusMessage.setText("It's your turn!");
                 endTurnButton.setVisible(true);            }
