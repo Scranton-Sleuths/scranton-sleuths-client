@@ -324,6 +324,11 @@ export class Game extends Phaser.Scene {
             // update the game status message if the server
             // rejects a certain action
             this.gameStatusMessage.setText(message);
+
+            if(message == "Must move first!") {
+                this.myturn = true;
+                this.gameStatusMessage.setText("It's your turn!");
+                endTurnButton.setVisible(true);            }
         });
 
         this.room.onMessage("correctAccusation", (message) => {
