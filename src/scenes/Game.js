@@ -57,6 +57,7 @@ export class Game extends Phaser.Scene {
         this.load.image('Accusation Btn', require('../assets/buttons/accusationbtn.png'));
         this.load.image('Respond Btn', require('../assets/buttons/respondbtn.png'));
         this.load.image('Game Over', require('../assets/buttons/gameover.png'));
+        this.load.image('New Game', require('../assets/buttons/newgame.png'));
         // Card Images
         this.load.image('Your Cards', require('../assets/cards/yourcards.png'));
         this.load.image('Conference Room Card', require('../assets/cards/ConferenceRoom.png'));
@@ -158,7 +159,7 @@ export class Game extends Phaser.Scene {
         // TODO: this message should be updated to reflect the current player's turn,
         // as well as any suggestions, accusations that get made
         this.gameStatusMessage = this.add.text(0, 0, "");
-        const gameOverButton = this.add.text(750, 10, "New Game");
+        const gameOverButton = this.add.image(750, 20, "New Game");
 
         gameOverButton.setScale(0.75);
         gameOverButton.setVisible(false);
@@ -287,6 +288,7 @@ export class Game extends Phaser.Scene {
             console.log("Resetting!");
             gameOverButton.setVisible(false);
             accusationBtn.setVisible(true);
+            suggestionBtn.setVisible(true);
             this.cards.destroy();
         });
                 
@@ -353,6 +355,7 @@ Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon}
 You have been eliminated from the game. 
 Continue to Respond to Suggestions until the game is over.`);
             accusationBtn.setVisible(false);
+            suggestionBtn.setVisible(false);
         });
 
         this.room.onMessage("playerOut", (message) => {
@@ -366,7 +369,7 @@ but will continue to respond to suggestions.`);
             this.gameStatusMessage.setText(
 `Rats! All players have guessed incorrectly. The answer was:
 Person: ${message.person}, Place: ${message.place}, Weapon: ${message.weapon} 
-The game is now over. Click to return to the lobby.`);
+The game is now over. Click to start a new game.`);
             gameOverButton.setVisible(true);
         });
 
