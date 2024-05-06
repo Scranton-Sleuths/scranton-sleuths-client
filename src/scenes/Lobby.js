@@ -22,6 +22,7 @@ export class Lobby extends Phaser.Scene {
         this.load.html("form");
         this.load.image('cat', require('../assets/cat.png'));
         this.load.image('Join Game', require('../assets/buttons/joingame.png'));
+        this.load.image('Logo', require('../assets/scranton-sleuths.png'));
     }
 
     update() {
@@ -34,6 +35,9 @@ export class Lobby extends Phaser.Scene {
         
         // Connect to the lobby
         await this.connect();
+
+        // display logo
+        this.add.image(600, 100, 'Logo');
 
         // hide input form
         const hiddenForm = this.add.dom(100, 550, "#myForm");
